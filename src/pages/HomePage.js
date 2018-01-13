@@ -1,14 +1,71 @@
 import React from "react"
 import Slider from "../components/slider"
-import {
-  Card,
-  CardActions,
-  CardHeader,
-  CardMedia,
-  CardText,
-  CardTitle,
-  FlatButton
-} from "material-ui"
+import { GridList, GridTile, IconButton, Subheader } from "material-ui"
+import StarBorder from "material-ui/svg-icons/toggle/star-border"
+
+const styles = {
+  root: {
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "space-around"
+  },
+  gridList: {
+    width: 500
+    // height: 450,
+    // overflowY: "auto"
+  }
+}
+
+const tilesData = [
+  {
+    img:
+      "https://images.unsplash.com/photo-1505489435671-80a165c60816?auto=format&fit=crop&w=100&q=80",
+    title: "Breakfast",
+    author: "jill111"
+  },
+  {
+    img:
+      "https://images.unsplash.com/photo-1505489435671-80a165c60816?auto=format&fit=crop&w=53&q=80",
+    title: "Tasty burger",
+    author: "pashminu"
+  },
+  {
+    img:
+      "https://images.unsplash.com/photo-1505489435671-80a165c60816?auto=format&fit=crop&w=53&q=80",
+    title: "Camera",
+    author: "Danson67"
+  },
+  {
+    img:
+      "https://images.unsplash.com/photo-1505489435671-80a165c60816?auto=format&fit=crop&w=53&q=80",
+    title: "Morning",
+    author: "fancycrave1"
+  },
+  {
+    img:
+      "https://images.unsplash.com/photo-1505489435671-80a165c60816?auto=format&fit=crop&w=53&q=80",
+    title: "Hats",
+    author: "Hans"
+  },
+  {
+    img:
+      "https://images.unsplash.com/photo-1505489435671-80a165c60816?auto=format&fit=crop&w=53&q=80",
+    title: "Honey",
+    author: "fancycravel"
+  },
+  {
+    img:
+      "https://images.unsplash.com/photo-1505489435671-80a165c60816?auto=format&fit=crop&w=53&q=80",
+    title: "Vegetables",
+    author: "jill111"
+  },
+  {
+    img:
+      "https://images.unsplash.com/photo-1505489435671-80a165c60816?auto=format&fit=crop&w=53&q=80",
+    title: "Water plant",
+    author: "BkrmadtyaKarki"
+  }
+]
 
 export default class HomePage extends React.Component {
   render() {
@@ -32,44 +89,29 @@ export default class HomePage extends React.Component {
             ]}
           />
         </div>
-        <div>
-          <div>News Nexus</div>
-          <div>
-            <div>
-              <span>Breakin'</span>
-              <div />
-              <div>Games</div>
-            </div>
-          </div>
-        </div>
 
-        <div>
-          <Card>
-            <CardHeader
-              title="URL Avatar"
-              subtitle="Subtitle"
-              avatar="images/jsa-128.jpg"
-            />
-            <CardMedia
-              overlay={
-                <CardTitle title="Overlay title" subtitle="Overlay subtitle" />
-              }
-            >
-              <img src="images/nature-600-337.jpg" alt="" />
-            </CardMedia>
-            <CardTitle title="Card title" subtitle="Card subtitle" />
-            <CardText>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
-              mattis pretium massa. Aliquam erat volutpat. Nulla facilisi. Donec
-              vulputate interdum sollicitudin. Nunc lacinia auctor quam sed
-              pellentesque. Aliquam dui mauris, mattis quis lacus id,
-              pellentesque lobortis odio.
-            </CardText>
-            <CardActions>
-              <FlatButton label="Action1" />
-              <FlatButton label="Action2" />
-            </CardActions>
-          </Card>
+        <div style={styles.root}>
+          <GridList cellHeight={180} style={styles.gridList}>
+            <Subheader>News Nexus</Subheader>
+            {tilesData.map(tile => (
+              <GridTile
+                key={tile.img}
+                title={tile.title}
+                subtitle={
+                  <span>
+                    by <b>{tile.author}</b>
+                  </span>
+                }
+                actionIcon={
+                  <IconButton>
+                    <StarBorder color="white" />
+                  </IconButton>
+                }
+              >
+                <img src={tile.img} />
+              </GridTile>
+            ))}
+          </GridList>
         </div>
       </div>
     )

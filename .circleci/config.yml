@@ -1,43 +1,77 @@
-version: 1
-machine:
-  yarn:
-    version: 1.6.0
+aliases:
+  - &restore-yarn-cache
+    keys:
+      - v1-yarn-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      # Fallback in case checksum fails
+      - v1-yarn-{{ .Branch }}-
 
-dependencies:
-  pre:
-    - rm -rf node_modules
+  - &save-yarn-cache
+    paths:
+      - node_modules
+      - ~/.cache/yarn
+    key: v1-yarn-{{ .Branch }}-{{ checksum "yarn.lock" }}
 
-test:
-  override:
-    - yarn run build
-    - yarn run test:ci -- --coverage
-    - yarn run test:server
-  post:
-    - mv ./coverage ${CIRCLE_ARTIFACTS}
+  - &filter-only-master
+    branches:
+      only:
+        - master
 
-deployment:
-  dev:
-    branch: /^(chore|dev|fix).*/
-    commands:
-      - git push -f git@heroku.com:${HEROKU_APP_DEV}.git ${CIRCLE_BRANCH}:master
-  staging:
-    branch: master
-    heroku:
-      appname: ${HEROKU_APP_PROD}
-  production:
-    branch: master
-    commands:
-      - |
-        cat >~/.netrc <<EOF
-        machine api.heroku.com
-          login $HEROKU_EMAIL
-          password $HEROKU_TOKEN
-        machine git.heroku.com
-          login $HEROKU_EMAIL
-          password $HEROKU_TOKEN
-        EOF
-      - chmod 600 ~/.netrc # Heroku cli complains about permissions without this
-      - "[[ ! -s \"$(git rev-parse --git-dir)/shallow\" ]] || git fetch --unshallow"
-      - git push git@heroku.com:${HEROKU_APP_PROD}.git $CIRCLE_SHA1:refs/heads/master
-      - heroku run rake db:migrate --app xtunes-client:
-          timeout: 400 # if your deploys take a long time
+  - &yarn
+    |
+      yarn install --non-interactive --cache-folder ~/.cache/yarn --frozen-lockfile
+defaults: &defaults
+  docker:
+    - image: circleci/node:9.11.1
+
+version: 2 # use CircleCI 2.0
+jobs: # a collection of steps
+  build: # runs not using Workflows must have a `build` job as entry point
+    # working_directory: ~/mern-starter # directory where steps will run
+    <<: *defaults
+    working_directory: ~/hyperdrive-client
+    docker: # run the steps with Docker
+      - image: circleci/node:9.11.1 # ...with this image as the primary container; this is where all `steps` will run
+    steps: # a collection of executable commands 
+      - checkout
+
+      - restore_cache:
+          name: Restore node_modules cache
+          keys:
+            - v1-node-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - v1-node-{{ arch }}-{{ .Branch }}-
+            - v1-node-{{ arch }}-
+
+      - run:
+          name: Nodejs Version
+          command: node --version
+
+      - run:
+          name: Install Packages
+          command: yarn install
+
+      - run:
+          name: Build Packages
+          command: yarn build
+
+      - save_cache:
+          name: Save node_modules cache
+          key: v1-node-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
+      # - run: bash .circleci/setup-heroku.sh
+      # - add_ssh_keys:
+      #     fingerprints:
+      #       - "48:a0:87:54:ca:75:32:12:c6:9e:a2:77:a4:7a:08:a4"
+      # - deploy:
+      #     name: Deploy Master to Heroku
+      #     command: |
+      #       if [ "${CIRCLE_BRANCH}" == "master" ]; then
+      #         git push heroku master
+      #       fi
+      - run:
+          name: Deploy to Heroku
+              command: |
+                  heroku git:remote -a HEROKU_APP_NAME
+                  git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git HEAD:refs/heads/master
+                  sleep 5  # sleep for 5 seconds to wait for dynos
+                  heroku restart

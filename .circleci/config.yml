@@ -35,29 +35,29 @@ jobs: # a collection of steps
       - checkout
 
       - restore_cache:
-          name: Restore node_modules cache
-          keys:
-            - v1-node-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
-            - v1-node-{{ arch }}-{{ .Branch }}-
-            - v1-node-{{ arch }}-
+        name: Restore node_modules cache
+        keys:
+          - v1-node-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          - v1-node-{{ arch }}-{{ .Branch }}-
+          - v1-node-{{ arch }}-
 
       - run:
-          name: Nodejs Version
-          command: node --version
+        name: Nodejs Version
+        command: node --version
 
       - run:
-          name: Install Packages
-          command: yarn install
+        name: Install Packages
+        command: yarn install
 
       - run:
-          name: Build Packages
-          command: yarn build
+        name: Build Packages
+        command: yarn build
 
       - save_cache:
-          name: Save node_modules cache
-          key: v1-node-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
-          paths:
-            - node_modules
+        name: Save node_modules cache
+        key: v1-node-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+        paths:
+          - node_modules
       # - run: bash .circleci/setup-heroku.sh
       # - add_ssh_keys:
       #     fingerprints:
@@ -69,12 +69,12 @@ jobs: # a collection of steps
       #         git push heroku master
       #       fi
       - run:
-          name: Deploy to Heroku
-              command: |
-                  heroku git:remote -a HEROKU_APP_NAME
-                  git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git HEAD:refs/heads/master
-                  sleep 5  # sleep for 5 seconds to wait for dynos
-                  heroku restart
+        name: Deploy to Heroku
+          command: |
+            heroku git:remote -a HEROKU_APP_NAME
+            git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git HEAD:refs/heads/master
+            sleep 5  # sleep for 5 seconds to wait for dynos
+            heroku restart
 workflows:
   version: 2
   build-deploy:

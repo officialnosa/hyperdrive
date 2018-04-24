@@ -1,10 +1,24 @@
-.slider {
-  height: 300px;
-  background: #eee;
-}
-.logo {
-  height: 45px;
+@font-face {
+  font-family: 'Roboto';
+  src: url('tt0371m.ttf');
 }
 
-.watermark {
+.slider {
+  height: 300px;
+  background: #fff3;
+}
+.logo {
+  height: 52px;
+}
+.roboto {
+  font-family: 'Roboto';
+}
+
+body {
+  background: #262627;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
 }
